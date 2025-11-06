@@ -14,37 +14,37 @@ import java.util.Random;
 public class Ex1 {
     private static final int WIDTH = 800;  // Size of the window in pixels
     private static final int HEIGHT = 800;
-    
+
     static int cells=20;    // The size of the maze is cells*cells (default is 20*20)
-    
+
     public static void main(String[] args) {
-	
-	// Get the size of the maze from the command line
-	if (args.length > 0) {
-	    try {
-		cells = Integer.parseInt(args[0]);  // The maze is of size cells*cells
-	    } catch (NumberFormatException e) {
-		System.err.println("Argument " + args[0] + " should be an integer");
-		System.exit(-1);
-	    }
-	}
-	// Check that the size is valid
-	if ( (cells <= 1) || (cells > 100) ) {
-	    System.err.println("Invalid size, must be between 2 and 100 ");
-	    System.exit(-1);
-	}
+
+        // Get the size of the maze from the command line
+        if (args.length > 0) {
+            try {
+                cells = Integer.parseInt(args[0]);  // The maze is of size cells*cells
+            } catch (NumberFormatException e) {
+                System.err.println("Argument " + args[0] + " should be an integer");
+                System.exit(-1);
+            }
+        }
+        // Check that the size is valid
+        if ( (cells <= 1) || (cells > 100) ) {
+            System.err.println("Invalid size, must be between 2 and 100 ");
+            System.exit(-1);
+        }
         Runnable r = new Runnable() {
-		public void run() {
-		    // Create a JComponent for the maze
-		    MazeComponent mazeComponent = new MazeComponent(WIDTH, HEIGHT, cells);
-		    // Change the text of the OK button to "Close"
-		    UIManager.put("OptionPane.okButtonText", "Close");
-		    JOptionPane.showMessageDialog(null, mazeComponent, "Maze " + cells + " by " + cells,
-						  JOptionPane.INFORMATION_MESSAGE);
-		}
-	    };
+            public void run() {
+                // Create a JComponent for the maze
+                MazeComponent mazeComponent = new MazeComponent(WIDTH, HEIGHT, cells);
+                // Change the text of the OK button to "Close"
+                UIManager.put("OptionPane.okButtonText", "Close");
+                JOptionPane.showMessageDialog(null, mazeComponent, "Maze " + cells + " by " + cells,
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        };
         SwingUtilities.invokeLater(r);
-    }   
+    }
 }
 
 class MazeComponent extends JComponent {
@@ -59,128 +59,133 @@ class MazeComponent extends JComponent {
     MazeComponent(int w, int h, int c) {
         super();
         cells = c;                // Number of cells
-	cellWidth = w/cells;      // Width of a cell
-	cellHeight = h/cells;     // Height of a cell
-	width =  c*cellWidth;     // Calculate exact dimensions of the component
-	height = c*cellHeight;
-	setPreferredSize(new Dimension(width+1,height+1));  // Add 1 pixel for the border
+        cellWidth = w/cells;      // Width of a cell
+        cellHeight = h/cells;     // Height of a cell
+        width =  c*cellWidth;     // Calculate exact dimensions of the component
+        height = c*cellHeight;
+        setPreferredSize(new Dimension(width+1,height+1));  // Add 1 pixel for the border
     }
-    
+
     public void paintComponent(Graphics g) {
-	g.setColor(Color.yellow);                    // Yellow background
-	g.fillRect(0, 0, width, height);
-	
-	// Draw a grid of cells
-	g.setColor(Color.blue);                 // Blue lines
-	for (int i = 0; i<=cells; i++) {        // Draw horizontal grid lines
-	    g.drawLine (0, i*cellHeight, cells*cellWidth, i*cellHeight);
-	}
-	for (int j = 0; j<=cells; j++) {       // Draw verical grid lines
-	    g.drawLine (j*cellWidth, 0, j*cellWidth, cells*cellHeight);
-	}
+        g.setColor(Color.yellow);                    // Yellow background
+        g.fillRect(0, 0, width, height);
 
-	// Mark entry and exit cells
-	paintCell(0,0,Color.green, g);               // Mark entry cell
-	drawWall(-1, 0, 2, g);                       // Open up entry cell
-	paintCell(cells-1, cells-1,Color.pink, g);   // Mark exit cell
-	drawWall(cells-1, cells-1, 2, g);            // Open up exit cell
-	
-	g.setColor(Color.yellow);                 // Use yellow lines to remove existing walls
-	createMaze(cells, g);
+        // Draw a grid of cells
+        g.setColor(Color.blue);                 // Blue lines
+        for (int i = 0; i<=cells; i++) {        // Draw horizontal grid lines
+            g.drawLine (0, i*cellHeight, cells*cellWidth, i*cellHeight);
+        }
+        for (int j = 0; j<=cells; j++) {       // Draw verical grid lines
+            g.drawLine (j*cellWidth, 0, j*cellWidth, cells*cellHeight);
+        }
+
+        // Mark entry and exit cells
+        paintCell(0,0,Color.green, g);               // Mark entry cell
+        drawWall(-1, 0, 2, g);                       // Open up entry cell
+        paintCell(cells-1, cells-1,Color.pink, g);   // Mark exit cell
+        drawWall(cells-1, cells-1, 2, g);            // Open up exit cell
+
+        g.setColor(Color.yellow);                 // Use yellow lines to remove existing walls
+        createMaze(cells, g);
     }
 
-    private void createMaze (int cells, Graphics g) {
-		System.out.println("Creating maze");
-		ArrayList<Integer> union = new ArrayList<Integer>();
-		for (int i = 0; i < cells*cells; i++) {
-			union.add(-1);
-		}
-		random = new Random();
-		for (int col = 0; col < cells; col++) {
-			for (int row = 0; row < cells; row++) {
-				Integer currentCell = getCell(row, col);
-				if (currentCell != null) {
-					int x = random.nextInt(4);
-					int tries = 0;
-					Integer nextCell = null;
-					while (nextCell == null && tries < 4) {
-						switch (x)
-						{
-							case 0:
-								nextCell = getCell(row-1, col);
-								break;
-							case 1:
-								nextCell = getCell(row, col+1);
-								break;
-							case 2:
-								nextCell = getCell(row+1, col);
-								break;
-							case 3:
-								nextCell = getCell(row, col-1);
-								break;
-						}
-						tries++;
-						x++;
-						if (x == 4) x = 0;
-						if (joinUnion(union, currentCell, nextCell)) break;
-					}
-					if (nextCell == null) continue;
-					System.out.println("Current cell: " + currentCell + " next cell: " + nextCell + "");
-					drawWall(col, row, x, g);
-				}
-			}
-		}
-	// This is what you write
+    private void createMaze(int cells, Graphics g) {
+        int totalCells = cells * cells;
+        int[] parent = new int[totalCells];
 
+        for (int i = 0; i < totalCells; i++) {
+            parent[i] = -1;
+        }
+
+        ArrayList<Wall> walls = new ArrayList<>();
+        for (int y = 0; y < cells; y++) {
+            for (int x = 0; x < cells; x++) {
+                if (x < cells - 1)
+                    walls.add(new Wall(x, y, 2));
+                if (y < cells - 1)
+                    walls.add(new Wall(x, y, 3));
+            }
+        }
+
+        Random random = new Random();
+        int setCount = totalCells;
+
+        while (setCount > 1 && !walls.isEmpty()) {
+            int wallIndex = random.nextInt(walls.size());
+            Wall wall = walls.remove(wallIndex);
+
+            int cell1 = wall.y * cells + wall.x;
+            int cell2 = wall.direction == 2
+                    ? wall.y * cells + (wall.x + 1)
+                    : (wall.y + 1) * cells + wall.x;
+
+            int root1 = find(parent, cell1);
+            int root2 = find(parent, cell2);
+
+            if (root1 != root2) {
+                union(parent, root1, root2);
+                setCount--;
+
+                drawWall(wall.x, wall.y, wall.direction, g);
+            }
+        }
     }
 
-	private boolean joinUnion(ArrayList<Integer> union, Integer current, Integer next) {
-		if (current == null || next == null) return false;
-		int cur = current;
-		int n = next;
-		while (union.get(cur) != -1) {cur = union.get(cur);}
-		while (union.get(n) != -1) {n = union.get(n);}
-		if (cur == n) return false;
-		union.set(n, cur);
-		return true;
-	}
+    private int find(int[] parent, int x) {
+        if (parent[x] < 0) return x;
+        parent[x] = find(parent, parent[x]);
+        return parent[x];
+    }
 
-	private Integer getCell(int row, int col) {
-		if (col < 0 || col > cells-1 || row < 0 || row > cells-1) {
-			return null;
-		}
-		int val = row*cells + col;
-		return val;
-	}
+    private void union(int[] parent, int root1, int root2) {
+
+        if (parent[root2] < parent[root1]) {
+            parent[root2] += parent[root1];
+            parent[root1] = root2;
+        } else {
+            parent[root1] += parent[root2];
+            parent[root2] = root1;
+        }
+    }
+
+    class Wall {
+        int x, y;
+        int direction;
+        Wall(int x, int y, int direction) {
+            this.x = x;
+            this.y = y;
+            this.direction = direction;
+        }
+    }
 
 
     // Paints the interior of the cell at postion x,y with colour c
     private void paintCell(int x, int y, Color c, Graphics g) {
-	int xpos = x*cellWidth;    // Position in pixel coordinates
-	int ypos = y*cellHeight;
-	g.setColor(c);
-	g.fillRect(xpos+1, ypos+1, cellWidth-1, cellHeight-1);
+        int xpos = x*cellWidth;    // Position in pixel coordinates
+        int ypos = y*cellHeight;
+        g.setColor(c);
+        g.fillRect(xpos+1, ypos+1, cellWidth-1, cellHeight-1);
     }
 
-    
+
     // Draw the wall w in cell (x,y) (0=left, 1=up, 2=right, 3=down)
     private void drawWall(int x, int y, int w, Graphics g) {
-	int xpos = x*cellWidth;    // Position in pixel coordinates
-	int ypos = y*cellHeight;
-	
-	switch(w){
-	case (0):       // Wall to the left
-	    g.drawLine(xpos, ypos+1, xpos, ypos+cellHeight-1);
-	    break;
-	case (1):       // Wall at top
-	    g.drawLine(xpos+1, ypos, xpos+cellWidth-1, ypos);
-	    break;
-	case (2):      // Wall to the right
-	    g.drawLine(xpos+cellWidth, ypos+1, xpos+cellWidth, ypos+cellHeight-1);
-	    break;
-	case (3):      // Wall at bottom
-	    g.drawLine(xpos+1, ypos+cellHeight, xpos+cellWidth-1, ypos+cellHeight);
-	    break;
-	}
+        int xpos = x*cellWidth;    // Position in pixel coordinates
+        int ypos = y*cellHeight;
+
+        switch(w){
+            case (0):       // Wall to the left
+                g.drawLine(xpos, ypos+1, xpos, ypos+cellHeight-1);
+                break;
+            case (1):       // Wall at top
+                g.drawLine(xpos+1, ypos, xpos+cellWidth-1, ypos);
+                break;
+            case (2):      // Wall to the right
+                g.drawLine(xpos+cellWidth, ypos+1, xpos+cellWidth, ypos+cellHeight-1);
+                break;
+            case (3):      // Wall at bottom
+                g.drawLine(xpos+1, ypos+cellHeight, xpos+cellWidth-1, ypos+cellHeight);
+                break;
+        }
     }
 }
