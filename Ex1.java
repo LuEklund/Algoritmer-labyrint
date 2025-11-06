@@ -97,6 +97,7 @@ class MazeComponent extends JComponent {
             parent[i] = -1;
         }
 
+         //Create a list of potential walls to be drawn
         ArrayList<Wall> walls = new ArrayList<>();
         for (int y = 0; y < cells; y++) {
             for (int x = 0; x < cells; x++) {
@@ -115,6 +116,7 @@ class MazeComponent extends JComponent {
             Wall wall = walls.remove(wallIndex);
 
             int cell1 = wall.y * cells + wall.x;
+            //Get the index of the cell to the right or down of cell1
             int cell2 = wall.direction == 2
                     ? wall.y * cells + (wall.x + 1)
                     : (wall.y + 1) * cells + wall.x;
