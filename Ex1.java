@@ -91,67 +91,18 @@ class MazeComponent extends JComponent {
 
     private void createMaze (int cells, Graphics g) {
 		System.out.println("Creating maze");
-		ArrayList<Integer> union = new ArrayList<Integer>();
-		for (int i = 0; i < cells*cells; i++) {
-			union.add(-1);
-		}
-		random = new Random();
+		UnionLucas union = new UnionLucas(cells);
 		for (int col = 0; col < cells; col++) {
 			for (int row = 0; row < cells; row++) {
-				Integer currentCell = getCell(row, col);
-				if (currentCell != null) {
-					int x = random.nextInt(4);
-					int tries = 0;
-					Integer nextCell = null;
-					while (nextCell == null && tries < 4) {
-						switch (x)
-						{
-							case 0:
-								nextCell = getCell(row-1, col);
-								break;
-							case 1:
-								nextCell = getCell(row, col+1);
-								break;
-							case 2:
-								nextCell = getCell(row+1, col);
-								break;
-							case 3:
-								nextCell = getCell(row, col-1);
-								break;
-						}
-						tries++;
-						x++;
-						if (x == 4) x = 0;
-						if (joinUnion(union, currentCell, nextCell)) break;
-					}
-					if (nextCell == null) continue;
-					System.out.println("Current cell: " + currentCell + " next cell: " + nextCell + "");
-					drawWall(col, row, x, g);
-				}
+				Integer currentCell = union.getCell(row, col);
+				if (currentCell == null) continue;
+				NeighbourInfo neighbour = union.getRandomValidNeighbour(row, col);
+				if (neighbour == null) continue;
+				if (union.joinUnion(currentCell, neighbour.cell)) drawWall(col, row, neighbour.direction, g);
 			}
 		}
-	// This is what you write
-
     }
 
-	private boolean joinUnion(ArrayList<Integer> union, Integer current, Integer next) {
-		if (current == null || next == null) return false;
-		int cur = current;
-		int n = next;
-		while (union.get(cur) != -1) {cur = union.get(cur);}
-		while (union.get(n) != -1) {n = union.get(n);}
-		if (cur == n) return false;
-		union.set(n, cur);
-		return true;
-	}
-
-	private Integer getCell(int row, int col) {
-		if (col < 0 || col > cells-1 || row < 0 || row > cells-1) {
-			return null;
-		}
-		int val = row*cells + col;
-		return val;
-	}
 
 
     // Paints the interior of the cell at postion x,y with colour c
