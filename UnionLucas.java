@@ -52,6 +52,7 @@ public class UnionLucas {
 
     public boolean joinUnion(Integer current, Integer next) {
         if (current == null || next == null) return false;
+        if (next == cellsCount*cellsCount - 1 && union.get(next) != -1) return false;
         int cur = current;
         int n = next;
         while (union.get(cur) != -1) {cur = union.get(cur);}
