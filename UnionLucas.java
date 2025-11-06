@@ -29,16 +29,16 @@ public class UnionLucas {
         while (nextCell == null && tries < 4) {
             switch (x) {
                 case 0:
-                    nextCell = getCell(row - 1, col);
+                    nextCell = getCell(row, col - 1);
                     break;
                 case 1:
-                    nextCell = getCell(row, col + 1);
-                    break;
-                case 2:
                     nextCell = getCell(row + 1, col);
                     break;
+                case 2:
+                    nextCell = getCell(row, col + 1);
+                    break;
                 case 3:
-                    nextCell = getCell(row, col - 1);
+                    nextCell = getCell(row - 1, col);
                     break;
             }
             if (nextCell != null) return new NeighbourInfo(nextCell, x);

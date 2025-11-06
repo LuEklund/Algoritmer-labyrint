@@ -92,8 +92,8 @@ class MazeComponent extends JComponent {
     private void createMaze (int cells, Graphics g) {
 		System.out.println("Creating maze");
 		UnionLucas union = new UnionLucas(cells);
-		for (int col = 0; col < cells; col++) {
-			for (int row = 0; row < cells; row++) {
+		for (int row = 0; row < cells; row++) {
+			for (int col = 0; col < cells; col++) {
 				Integer currentCell = union.getCell(row, col);
 				if (currentCell == null) continue;
 				NeighbourInfo neighbour = union.getRandomValidNeighbour(row, col);
