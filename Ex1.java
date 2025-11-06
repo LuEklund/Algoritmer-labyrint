@@ -95,10 +95,9 @@ class MazeComponent extends JComponent {
 		for (int row = 0; row < cells; row++) {
 			for (int col = 0; col < cells; col++) {
 				Integer currentCell = union.getCell(row, col);
-				if (currentCell == null) continue;
+				if (currentCell == null || currentCell == cells*cells - 1) continue;
 				NeighbourInfo neighbour = union.getRandomValidNeighbour(row, col);
-				if (neighbour == null) continue;
-				if (union.joinUnion(currentCell, neighbour.cell)) drawWall(col, row, neighbour.direction, g);
+				if (neighbour != null && neighbour.cell != cells*cells - 1) drawWall(col, row, neighbour.direction, g);
 			}
 		}
     }

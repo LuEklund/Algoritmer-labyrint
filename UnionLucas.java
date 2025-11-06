@@ -26,7 +26,7 @@ public class UnionLucas {
         int x = random.nextInt(4);
         int tries = 0;
         Integer nextCell = null;
-        while (nextCell == null && tries < 4) {
+        while (tries < 4) {
             switch (x) {
                 case 0:
                     nextCell = getCell(row, col - 1);
@@ -41,7 +41,7 @@ public class UnionLucas {
                     nextCell = getCell(row + 1, col);
                     break;
             }
-            if (nextCell != null) return new NeighbourInfo(nextCell, x);
+            if (joinUnion(getCell(row, col), nextCell)) return new NeighbourInfo(nextCell, x);
             tries++;
             x++;
             if (x == 4) x = 0;
@@ -60,6 +60,7 @@ public class UnionLucas {
         union.set(n, cur);
         return true;
     }
+
 }
 
 
